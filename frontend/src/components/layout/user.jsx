@@ -1,10 +1,13 @@
 import React from 'react'
-
+import Head from '../common/head.jsx'
 function user() {
   return (
-    <div>
-      hi
-    </div>
+   <>
+   {/*HEAD*/}
+   <Head/>
+   {/*MAIN*/}
+   
+   </>
   )
 }
 
