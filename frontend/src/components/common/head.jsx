@@ -1,6 +1,6 @@
 import React from 'react'
-import Navbar from './navbar'
-function head() {
+import Navbar from './Navbar'
+function Head() {
   return (
     <div className='border-b border-gray-200'>
         <Navbar/>
@@ -8,4 +8,4 @@ function head() {
   )
 }
 
-export default head
+export default Head
