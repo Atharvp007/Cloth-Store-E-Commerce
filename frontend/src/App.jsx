@@ -2,6 +2,9 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import User from "./components/Layout/User.jsx";
 import Home from "./pages/Home.jsx";
 import { Toaster } from "react-hot-toast";
+import Login from "./pages/Login.jsx";
+import Register from "./pages/Register.jsx";
+import Profile from "./pages/Profile.jsx";
 
 
 const App = () => {
@@ -11,6 +14,9 @@ const App = () => {
       <Routes>
         <Route path="/" element={<User />}>
           <Route index element={<Home />} />
+          <Route path="Login" element={<Login />} />
+          <Route path="Register" element={<Register />} />
+          <Route path="Profile" element={<Profile />} />
         </Route>
 
         {/* Admin Layout */}
