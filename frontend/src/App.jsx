@@ -1,12 +1,13 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import User from "./components/Layout/User.jsx";
 import Home from "./pages/Home.jsx";
+import { Toaster } from "react-hot-toast";
 
 
 const App = () => {
   return (
     <BrowserRouter>
-   
+    <Toaster/>
       <Routes>
         <Route path="/" element={<User />}>
           <Route index element={<Home />} />
