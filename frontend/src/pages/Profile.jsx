@@ -1,5 +1,5 @@
 import React from 'react';
-import { User } from 'lucide-react'; // ✅ Lucide default user icon
+import { User } from 'lucide-react'; 
 import MyOrders from './MyOrders';
 
 const Profile = () => {
@@ -30,7 +30,7 @@ const Profile = () => {
                 </p>
               </div>
 
-              {/* Divider */}
+              
               <div className="w-full h-px bg-gray-300/50 my-2"></div>
 
               {/* Logout Button */}
@@ -49,7 +49,7 @@ const Profile = () => {
         </div>
       </div>
 
-      {/* Optional subtle background gradient for luxury feel */}
+    
       <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-gray-100/20 to-white/10 pointer-events-none -z-10"></div>
     </div>
   );

@@ -5,6 +5,7 @@ import { Toaster } from "react-hot-toast";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import Profile from "./pages/Profile.jsx";
+import Collections from "./pages/Collections.jsx";
 
 
 const App = () => {
@@ -17,6 +18,7 @@ const App = () => {
           <Route path="Login" element={<Login />} />
           <Route path="Register" element={<Register />} />
           <Route path="Profile" element={<Profile />} />
+          <Route path="collections/:collections" element={<Collections />} />
         </Route>
 
         {/* Admin Layout */}
