@@ -6,6 +6,9 @@ import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import Profile from "./pages/Profile.jsx";
 import Collections from "./pages/Collections.jsx";
+import ProductDetails from "./components/products/ProductDetails.jsx";
+import Checkout from "./components/cart/Checkout.jsx";
+import OrderConfirm from "./pages/Orderconfirm.jsx";
 
 
 const App = () => {
@@ -18,7 +21,10 @@ const App = () => {
           <Route path="Login" element={<Login />} />
           <Route path="Register" element={<Register />} />
           <Route path="Profile" element={<Profile />} />
+           <Route path="checkout" element={<Checkout />} />
+           <Route path="Product/:id" element={<ProductDetails />} />
           <Route path="collections/:collections" element={<Collections />} />
+           <Route path="orderconfirm" element={<OrderConfirm />} />
         </Route>
 
         {/* Admin Layout */}

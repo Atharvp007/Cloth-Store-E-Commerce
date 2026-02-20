@@ -1,6 +1,9 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 const ProductGrid = ({ products }) => {
+  const navigate = useNavigate();
+
   if (!products || products.length === 0) {
     return (
       <div className="flex justify-center items-center h-40">
@@ -16,7 +19,8 @@ const ProductGrid = ({ products }) => {
       {products.map((product) => (
         <div
           key={product._id}
-          className="bg-white rounded-xl overflow-hidden transition-all duration-300 hover:-translate-y-1"
+          onClick={() => navigate(`/product/${product._id}`)}
+          className="bg-white rounded-xl overflow-hidden transition-all duration-300 hover:-translate-y-1 cursor-pointer"
         >
           {/* Product Image */}
           <div className="h-[320px] w-full overflow-hidden bg-gray-100">
@@ -33,9 +37,7 @@ const ProductGrid = ({ products }) => {
               {product.name}
             </h3>
 
-            <p className="text-sm text-gray-500 mt-1">
-              ${product.price}
-            </p>
+            <p className="text-sm text-gray-500 mt-1">${product.price}</p>
 
             <button className="mt-4 w-full border border-black text-black py-2 text-xs tracking-wider uppercase transition-all duration-300 hover:bg-black hover:text-white">
               Add to Cart
