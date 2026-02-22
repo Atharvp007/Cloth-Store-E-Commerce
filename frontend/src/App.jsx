@@ -9,26 +9,40 @@ import Collections from "./pages/Collections.jsx";
 import ProductDetails from "./components/products/ProductDetails.jsx";
 import Checkout from "./components/cart/Checkout.jsx";
 import OrderConfirm from "./pages/Orderconfirm.jsx";
+import Orderdetails from "./pages/Orderdetails.jsx";
+import MyOrders from "./pages/MyOrders.jsx";
 
+import Admin from "./components/adminpanel/Admin.jsx";
+import AdminHome from "./components/adminpanel/AdminHome.jsx";
+import Usermanagement from "./components/adminpanel/Usermanagement.jsx";
 
 const App = () => {
   return (
     <BrowserRouter>
-    <Toaster/>
+      <Toaster />
+
       <Routes>
+        {/* USER LAYOUT */}
         <Route path="/" element={<User />}>
           <Route index element={<Home />} />
-          <Route path="Login" element={<Login />} />
-          <Route path="Register" element={<Register />} />
-          <Route path="Profile" element={<Profile />} />
-           <Route path="checkout" element={<Checkout />} />
-           <Route path="Product/:id" element={<ProductDetails />} />
+          <Route path="login" element={<Login />} />
+          <Route path="register" element={<Register />} />
+          <Route path="profile" element={<Profile />} />
+          <Route path="checkout" element={<Checkout />} />
+          <Route path="product/:id" element={<ProductDetails />} />
+          <Route path="myorders" element={<MyOrders />} />
           <Route path="collections/:collections" element={<Collections />} />
-           <Route path="orderconfirm" element={<OrderConfirm />} />
+          <Route path="orderconfirm" element={<OrderConfirm />} />
+          <Route path="order/:id" element={<Orderdetails />} />
         </Route>
 
-        {/* Admin Layout */}
-        <Route path="/admin" element={<div>Admin</div>} />
+        {/* ✅ ADMIN LAYOUT (FIXED) */}
+        <Route path="admin" element={<Admin />}>
+          <Route index element={<AdminHome />} />
+           <Route path="users" element={<Usermanagement />} />
+
+        </Route>
+
       </Routes>
     </BrowserRouter>
   );

@@ -17,6 +17,7 @@ function Navbar() {
   const navigate = useNavigate();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [navDrawerOpen, setNavDrawerOpen] = useState(false);
+
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchTerm.trim() !== "") {
@@ -25,156 +26,148 @@ function Navbar() {
     }
   };
 
-  const toggleCartDrawer = () => {
-    setDrawerOpen(!drawerOpen);
-  };
-
-  const toggleNavDrawer = () => {
-    setNavDrawerOpen(!navDrawerOpen);
-  };
+  const toggleCartDrawer = () => setDrawerOpen(!drawerOpen);
+  const toggleNavDrawer = () => setNavDrawerOpen(!navDrawerOpen);
 
   return (
     <>
-      <nav className="container mx-auto flex items-center justify-between py-4 px-6">
-        {/* Left — Logo */}
-        <div>
+      {/* ================= NAVBAR ================= */}
+      <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b">
+        <div className="container mx-auto flex items-center justify-between py-4 px-6">
+
+          {/* ===== Logo ===== */}
           <Link to="/" className="flex items-center gap-3 group">
             <img src={logo} alt="logo" className="w-7 h-7 md:w-10 md:h-10" />
 
-            {/* Styled Brand Name */}
             <span
-              className="text-2xl md:text-3xl font-extrabold tracking-wide
-            bg-gradient-to-r from-black via-gray-700 to-gray-400
-            bg-clip-text text-transparent
-            group-hover:scale-105 group-hover:tracking-wider
-            transition-all duration-300"
+              className="
+              text-2xl md:text-3xl font-extrabold tracking-wide
+              bg-gradient-to-r from-black via-gray-700 to-gray-400
+              bg-clip-text text-transparent
+              group-hover:scale-105 group-hover:tracking-wider
+              transition-all duration-300
+              "
             >
               clothify
             </span>
           </Link>
-        </div>
 
-        {/* Search Bar */}
-        <div className="relative hidden md:block">
-          <Input
-            type="text"
-            placeholder="Search..."
-            className="border border-gray-700 dark:border-gray-900 bg-gray-300 dark:bg-gray-900 w-75"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+          {/* ===== Search ===== */}
+          <div className="relative hidden md:block">
+            <Input
+              type="text"
+              placeholder="Search products..."
+              className="border border-gray-300 bg-gray-100 w-72 pr-12 focus:ring-2 focus:ring-black"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
 
-          <Button
-            className="absolute right-0 top-0 h-full px-4"
-            onClick={handleSearch}
-          >
-            <FaSearch />
-          </Button>
-        </div>
+            <Button
+              className="absolute right-0 top-0 h-full px-4 bg-black hover:bg-gray-800"
+              onClick={handleSearch}
+            >
+              <FaSearch />
+            </Button>
+          </div>
 
-        {/* Center — Navigation Links */}
-        <div className="hidden md:flex space-x-6">
-          <Link
-            to="/collections/all"
-            className="text-gray-700 hover:text-black text-sm font-medium uppercase transition"
-          >
-            Men
-          </Link>
+          {/* ===== Desktop Navigation ===== */}
+          <div className="hidden md:flex space-x-8">
+            {["Men", "Women", "Uppercloths", "Lowercloths"].map((item) => (
+              <Link
+                key={item}
+                to="/collections/all"
+                className="
+                text-gray-700 text-sm font-medium uppercase tracking-wide
+                relative group
+                "
+              >
+                {item}
 
-          <Link
-            to="#"
-            className="text-gray-700 hover:text-black text-sm font-medium uppercase transition"
-          >
-            Women
-          </Link>
+                {/* Premium underline animation */}
+                <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-black transition-all duration-300 group-hover:w-full"></span>
+              </Link>
+            ))}
+          </div>
 
-          <Link
-            to="#"
-            className="text-gray-700 hover:text-black text-sm font-medium uppercase transition"
-          >
-            Uppercloths
-          </Link>
+          {/* ===== Right Icons ===== */}
+          <div className="flex items-center space-x-5">
 
-          <Link
-            to="#"
-            className="text-gray-700 hover:text-black text-sm font-medium uppercase transition"
-          >
-            Lowercloths
-          </Link>
-        </div>
+            {/* Premium Admin Button */}
+            <Link
+              to="/admin"
+              className="
+              hidden md:flex items-center
+              px-4 py-1.5
+              rounded-full
+              text-xs font-semibold uppercase tracking-wide
+              bg-gradient-to-r from-black to-gray-800
+              text-white
+              shadow-md
+              hover:shadow-xl hover:scale-105
+              active:scale-95
+              transition-all duration-300
+              "
+            >
+              Admin Panel
+            </Link>
 
-        {/* Right — Icons */}
-        <div className="flex items-center space-x-4">
-          {/* Profile Icon */}
-          <Link to="/profile" className="hover:text-black">
-            <HiOutlineUser className="h-6 w-6 text-gray-700" />
-          </Link>
+            {/* Profile */}
+            <Link to="/profile" className="hover:scale-110 transition">
+              <HiOutlineUser className="h-6 w-6 text-gray-700" />
+            </Link>
 
-          {/* Shopping Bag */}
-          <button
-            onClick={toggleCartDrawer}
-            className="relative hover:text-black "
-          >
-            <HiOutlineShoppingBag className="h-6 w-6 text-gray-700 cursor-pointer" />
+            {/* Cart */}
+            <button
+              onClick={toggleCartDrawer}
+              className="relative hover:scale-110 transition"
+            >
+              <HiOutlineShoppingBag className="h-6 w-6 text-gray-700 cursor-pointer" />
 
-            {/* Cart Count Badge */}
-            <span className="absolute -top-1 bg-red-500 text-white text-xs rounded-full px-2 py-0.5">
-              3
-            </span>
-          </button>
+              <span className="absolute -top-1 -right-2 bg-red-500 text-white text-xs rounded-full px-2 py-0.5">
+                3
+              </span>
+            </button>
 
-          {/* Mobile Menu Icon */}
-          <button onClick={toggleNavDrawer} className="md:hidden">
-            <HiBars3BottomRight className="h-6 w-6 text-gray-700" />
-          </button>
+            {/* Mobile Menu */}
+            <button onClick={toggleNavDrawer} className="md:hidden">
+              <HiBars3BottomRight className="h-6 w-6 text-gray-700" />
+            </button>
+          </div>
         </div>
       </nav>
-      <CartDrawer drawerOpen={drawerOpen} toggleCartDrawer={toggleCartDrawer} />
-      {/* Mobile Navigation */}
+
+      {/* ===== CART DRAWER ===== */}
+      <CartDrawer
+        drawerOpen={drawerOpen}
+        toggleCartDrawer={toggleCartDrawer}
+      />
+
+      {/* ================= MOBILE MENU ================= */}
       <div
         className={`fixed top-0 left-0 w-3/4 sm:w-1/2 md:w-1/3 h-full
-  bg-white shadow-lg transform transition-transform duration-300 z-50
-  ${navDrawerOpen ? "translate-x-0" : "-translate-x-full"}`}
+        bg-white shadow-2xl transform transition-transform duration-300 z-50
+        ${navDrawerOpen ? "translate-x-0" : "-translate-x-full"}`}
       >
-        {/* Close Button */}
         <div className="flex justify-end p-4">
           <button onClick={toggleNavDrawer}>
             <IoMdClose className="h-6 w-6 text-gray-600" />
           </button>
         </div>
-        <div className="p-4">
-          <h2 className="text-xl font-semibold mb-4">Menu</h2>
 
-          <nav className="space-y-4">
-            <Link
-              to="#"
-              onClick={toggleNavDrawer}
-              className="block text-gray-600 hover:text-black"
-            >
-              Men
-            </Link>
-             <Link
-              to="#"
-              onClick={toggleNavDrawer}
-              className="block text-gray-600 hover:text-black"
-            >
-              Women
-            </Link>
-             <Link
-              to="#"
-              onClick={toggleNavDrawer}
-              className="block text-gray-600 hover:text-black"
-            >
-              Top Wear
-            </Link>
-             <Link
-              to="#"
-              onClick={toggleNavDrawer}
-              className="block text-gray-600 hover:text-black"
-            >
-              Bottam Wear
-            </Link>
-             
+        <div className="p-6">
+          <h2 className="text-xl font-semibold mb-6">Menu</h2>
+
+          <nav className="space-y-5">
+            {["Men", "Women", "Top Wear", "Bottom Wear"].map((item) => (
+              <Link
+                key={item}
+                to="/collections/all"
+                onClick={toggleNavDrawer}
+                className="block text-gray-600 hover:text-black transition"
+              >
+                {item}
+              </Link>
+            ))}
           </nav>
         </div>
       </div>
