@@ -172,9 +172,158 @@ router.get("/", async (req, res) => {
       limit,
     } = req.query;
 
-    res.json({ message: "Filters received successfully" });
+    let query = {};
+    let sort = {};
+
+    // Collection
+    if (collection && collection.toLowerCase() !== "all") {
+      query.collection = collection;
+    }
+
+    // Category
+    if (category && category.toLowerCase() !== "all") {
+      query.category = category;
+    }
+
+    // Material
+    if (material) {
+      query.material = {
+        $in: material.split(",").map((m) => m.trim()),
+      };
+    }
+
+    // Brand
+    if (brand) {
+      query.brand = {
+        $in: brand.split(",").map((b) => b.trim()),
+      };
+    }
+
+    // Size
+    if (size) {
+      query.sizes = {
+        $in: size.split(",").map((s) => s.trim()),
+      };
+    }
+
+    // Color
+    if (color) {
+      query.colors = {
+        $in: color.split(",").map((c) => c.trim()),
+      };
+    }
+
+    // Gender
+    if (gender) {
+      query.gender = gender;
+    }
+
+    // Price
+    if (minPrice || maxPrice) {
+      query.price = {};
+      if (minPrice) query.price.$gte = Number(minPrice);
+      if (maxPrice) query.price.$lte = Number(maxPrice);
+    }
+
+    // Search
+    if (search) {
+      query.$or = [
+        { name: { $regex: search, $options: "i" } },
+        { description: { $regex: search, $options: "i" } },
+      ];
+    }
+
+    // Sorting
+    if (sortBy) {
+      switch (sortBy) {
+        case "priceAsc":
+          sort = { price: 1 };
+          break;
+        case "priceDesc":
+          sort = { price: -1 };
+          break;
+        case "popularity":
+          sort = { rating: -1 };
+          break;
+        default:
+          sort = {};
+      }
+    }
+
+    const products = await Product.find(query)
+      .sort(sort)
+      .limit(Number(limit) || 0);
+
+    res.json(products);
   } catch (error) {
     res.status(500).json({ message: "Server Error" });
   }
 });
+
+//best seller
+router.get("/best-seller", async (req, res) => {
+  try {
+    const bestSeller = await Product.findOne().sort({ rating: -1 });
+    if (bestSeller) {
+      res.json(bestSeller);
+    } else {
+      res.status(404).json({ message: "No best seller found" });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Server Error");
+  }
+});
+
+//new arrivals
+router.get("/new-arrivals", async (req, res) => {
+  try {
+    // Fetch latest 8 products
+    const newArrivals = await Product.find().sort({ createdAt: -1 }).limit(8);
+    res.json(newArrivals);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Server Error");
+  }
+});
+
+//single product
+router.get("/:id", async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    if (product) {
+      res.json(product);
+    } else {
+      res.status(404).json({ message: "Product Not Found" });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Server Error");
+  }
+});
+
+// similar products
+router.get("/similar/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const product = await Product.findById(id);
+
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    const similarProducts = await Product.find({
+      _id: { $ne: id },
+      gender: product.gender,
+      category: product.category,
+    }).limit(4); 
+
+    res.json(similarProducts);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Server Error");
+  }
+});
+
 module.exports = router;

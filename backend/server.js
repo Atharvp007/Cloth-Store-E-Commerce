@@ -7,6 +7,7 @@ dotenv.config(); // load env FIRST
 const connectDB = require("./config/db");
 const userroutes = require("./routes/userroutes");
 const productroutes = require("./routes/productroutes");
+const cartroutes = require("./routes/cartroutes");
 
 const app = express();
 
@@ -24,6 +25,7 @@ app.get("/", (req, res) => {
 
 app.use("/api/users", userroutes);
 app.use("/api/products", productroutes);
+app.use("/api/cart", cartroutes);
 
 // ---------------- SERVER ----------------
 const PORT = process.env.PORT || 3000;
