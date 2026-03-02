@@ -8,6 +8,10 @@ const connectDB = require("./config/db");
 const userroutes = require("./routes/userroutes");
 const productroutes = require("./routes/productroutes");
 const cartroutes = require("./routes/cartroutes");
+const checkoutroutes = require("./routes/checkoutroutes");
+const orderroutes = require("./routes/orderroutes");
+const uploadroutes = require("./routes/uploadroutes");
+const adminroutes = require("./routes/adminroutes");
 
 const app = express();
 
@@ -26,6 +30,13 @@ app.get("/", (req, res) => {
 app.use("/api/users", userroutes);
 app.use("/api/products", productroutes);
 app.use("/api/cart", cartroutes);
+app.use("/api/checkout", checkoutroutes);
+app.use("/api/orders", orderroutes);
+app.use("/api/upload", uploadroutes);
+
+
+
+app.use("/api/admin/users", adminroutes);
 
 // ---------------- SERVER ----------------
 const PORT = process.env.PORT || 3000;

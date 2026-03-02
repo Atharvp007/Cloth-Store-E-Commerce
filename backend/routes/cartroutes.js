@@ -1,6 +1,7 @@
 const express = require("express");
 const Cart = require("../models/Cart");
 const Product = require("../models/Product");
+const { protect,admin } = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
@@ -190,4 +191,81 @@ router.get("/", async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 });
+
+
+router.post("/merge", protect, async (req, res) => {
+  const { guestId } = req.body;
+
+  try {
+    const guestCart = await Cart.findOne({ guestId });
+    let userCart = await Cart.findOne({ user: req.user._id });
+
+    if (guestCart) {
+      // 1. Handle empty guest cart
+      if (guestCart.products.length === 0) {
+        return res.status(400).json({ message: "Guest cart is empty" });
+      }
+
+      if (userCart) {
+        // 2. Scenario: Both carts exist - Merge them
+        guestCart.products.forEach((guestItem) => {
+    
+          const productIndex = userCart.products.findIndex(
+            (item) =>
+              item.productId.toString() === guestItem.productId.toString() &&
+              item.size === guestItem.size &&
+              item.color === guestItem.color
+          );
+
+          if (productIndex > -1) {
+    
+            userCart.products[productIndex].quantity += guestItem.quantity;
+          } else {
+        
+            userCart.products.push(guestItem);
+          }
+        });
+
+        
+        userCart.totalPrice = userCart.products.reduce(
+          (acc, item) => acc + item.price * item.quantity,
+          0
+        );
+
+        await userCart.save();
+
+      
+        try {
+          await Cart.findOneAndDelete({ guestId });
+        } catch (error) {
+          console.error("Error deleting guest cart:", error);
+        }
+
+        
+        return res.status(200).json(userCart);
+
+      } else {
+        // 3. Scenario: User has no cart - Convert guest cart to user cart
+        guestCart.user = req.user._id;
+        guestCart.guestId = undefined;
+        await guestCart.save();
+        return res.status(200).json(guestCart);
+      }
+    } else {
+      // 4. Scenario: Guest cart not found
+      if (userCart) {
+      
+        return res.status(200).json(userCart);
+      }
+      return res.status(404).json({ message: "Guest cart not found" });
+    }
+
+  } catch (error) {
+   
+    console.error(error);
+    res.status(500).json({ message: "Server Error" });
+  }
+});
+
+
 module.exports = router;
