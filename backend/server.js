@@ -12,6 +12,7 @@ const checkoutroutes = require("./routes/checkoutroutes");
 const orderroutes = require("./routes/orderroutes");
 const uploadroutes = require("./routes/uploadroutes");
 const adminroutes = require("./routes/adminroutes");
+const productadminroutes = require("./routes/productadminroutes");
 
 const app = express();
 
@@ -37,6 +38,7 @@ app.use("/api/upload", uploadroutes);
 
 
 app.use("/api/admin/users", adminroutes);
+app.use("/api/admin/products", productadminroutes);
 
 // ---------------- SERVER ----------------
 const PORT = process.env.PORT || 3000;
