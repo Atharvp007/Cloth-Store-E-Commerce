@@ -6,21 +6,37 @@ import { Label } from "../components/ui/label";
 import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import loginpage from "../assets/loginpage.jpg";
+import { registerUser } from "../redux/slices/authSlice";
+import { useDispatch } from "react-redux";
 
 const Register = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!name || !email || !password) {
       toast.error("Please fill in all fields");
       return;
     }
-    toast.success(`Welcome, ${name}! ✨`);
-    navigate("/");
+
+    try {
+      const resultAction = await dispatch(registerUser({ name, email, password }));
+
+      if (registerUser.fulfilled.match(resultAction)) {
+        toast.success(`Welcome, ${name}! ✨`);
+        navigate("/");
+      } else {
+        toast.error(resultAction.payload || "Registration failed");
+      }
+    } catch (error) {
+      toast.error("Something went wrong!");
+    }
   };
 
   return (

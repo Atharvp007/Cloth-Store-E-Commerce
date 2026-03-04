@@ -18,9 +18,12 @@ import Usermanagement from "./components/adminpanel/Usermanagement.jsx";
 import Productmanagement from "./components/adminpanel/Productmanagement.jsx";
 import Editproduct from "./components/adminpanel/Editproduct.jsx";
 import Ordermanagement from "./components/adminpanel/Ordermanagement.jsx";
+import { Provider } from "react-redux";
+import store from "./redux/store.js";
 
 const App = () => {
   return (
+    <Provider store={store}>
     <BrowserRouter>
       <Toaster />
 
@@ -51,6 +54,7 @@ const App = () => {
 
       </Routes>
     </BrowserRouter>
+    </Provider>
   );
 };
 
