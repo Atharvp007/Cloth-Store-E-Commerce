@@ -1,31 +1,35 @@
 import React from "react";
 import { RiDeleteBin3Line } from "react-icons/ri";
+import { useDispatch } from "react-redux";
+import { updateCartItemQuantity, removeFromCart } from "../../redux/slices/cartSlice";
 
-const CartContent = () => {
-  const cartProducts = [
-    {
-      productId: 1,
-      name: "T-shirt",
-      size: "M",
-      color: "Red",
-      quantity: 1,
-      price: 15,
-      image: "https://picsum.photos/200?random=1",
-    },
-    {
-      productId: 2,
-      name: "Hoodie",
-      size: "L",
-      color: "Black",
-      quantity: 2,
-      price: 30,
-      image: "https://picsum.photos/200?random=2",
-    },
-  ];
+const CartContent = ({ cart, userId, guestId }) => {
+  const dispatch = useDispatch();
+
+  const handleAddToCart = (productId, delta, quantity, size, color) => {
+    const newQuantity = quantity + delta;
+
+    if (newQuantity >= 1) {
+      dispatch(
+        updateCartItemQuantity({
+          productId,
+          quantity: newQuantity,
+          guestId,
+          userId,
+          size,
+          color,
+        })
+      );
+    }
+  };
+
+  const handleRemoveFromCart = (productId, size, color) => {
+    dispatch(removeFromCart({ productId, guestId, userId, size, color }));
+  };
 
   return (
     <div>
-      {cartProducts.map((product, index) => (
+      {cart.products.map((product, index) => (
         <div
           key={index}
           className="flex items-start justify-between py-4 border-b"
@@ -40,20 +44,50 @@ const CartContent = () => {
 
             <div>
               <h3>{product.name}</h3>
+
               <p className="text-sm text-gray-500">
                 Size: {product.size} | Color: {product.color}
               </p>
 
               <div className="flex items-center mt-2">
-                <button className="border rounded px-2 py-1 text-xl font-medium cursor-pointer">
-                  -
+
+                {/* Minus Button */}
+                <button
+                  onClick={() =>
+                    handleAddToCart(
+                      product.productId,
+                      -1,
+                      product.quantity,
+                      product.size,
+                      product.color
+                    )
+                  }
+                  className="w-8 h-8 flex items-center justify-center rounded-md border border-gray-300 bg-white text-lg font-semibold shadow-sm hover:bg-gray-100 hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer"
+                >
+                  −
                 </button>
 
-                <span className="mx-4">{product.quantity}</span>
+                {/* Quantity */}
+                <span className="mx-4 min-w-[20px] text-center font-medium transition-all duration-200">
+                  {product.quantity}
+                </span>
 
-                <button className="border rounded px-2 py-1 text-xl font-medium cursor-pointer">
+                {/* Plus Button */}
+                <button
+                  onClick={() =>
+                    handleAddToCart(
+                      product.productId,
+                      1,
+                      product.quantity,
+                      product.size,
+                      product.color
+                    )
+                  }
+                  className="w-8 h-8 flex items-center justify-center rounded-md border border-gray-300 bg-white text-lg font-semibold shadow-sm hover:bg-gray-100 hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer"
+                >
                   +
                 </button>
+
               </div>
             </div>
           </div>
@@ -63,8 +97,17 @@ const CartContent = () => {
             <p className="font-medium">
               ${product.price.toLocaleString()}
             </p>
-            <button>
-              <RiDeleteBin3Line className="h-6 w-6 mt-2 text-red-600 cursor-pointer" />
+
+            <button
+              onClick={() =>
+                handleRemoveFromCart(
+                  product.productId,
+                  product.size,
+                  product.color
+                )
+              }
+            >
+              <RiDeleteBin3Line className="h-6 w-6 mt-2 text-red-600 hover:scale-110 transition cursor-pointer" />
             </button>
           </div>
         </div>

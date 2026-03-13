@@ -259,11 +259,12 @@ router.get("/", async (req, res) => {
     res.status(500).json({ message: "Server Error" });
   }
 });
-
-//best seller
+//bestseller
 router.get("/best-seller", async (req, res) => {
   try {
-    const bestSeller = await Product.findOne().sort({ rating: -1 });
+    const bestSeller = await Product.findOne()
+      .sort({ rating: -1, totalSold: -1, createdAt: -1 });
+
     if (bestSeller) {
       res.json(bestSeller);
     } else {

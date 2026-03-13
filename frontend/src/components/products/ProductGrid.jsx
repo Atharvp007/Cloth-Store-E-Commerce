@@ -1,8 +1,14 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { addToCart } from "../../redux/slices/cartSlice";
+import { toast } from "react-hot-toast";
 
 const ProductGrid = ({ products }) => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const { user, guestId } = useSelector((state) => state.auth);
 
   if (!products || products.length === 0) {
     return (
@@ -13,6 +19,23 @@ const ProductGrid = ({ products }) => {
       </div>
     );
   }
+
+  const handleAddToCart = (e, product) => {
+    e.stopPropagation(); // prevent navigating to product page
+
+    dispatch(
+      addToCart({
+        productId: product._id,
+        quantity: 1,
+        size: product.sizes?.[0],
+        color: product.colors?.[0],
+        guestId,
+        userId: user?._id,
+      })
+    );
+
+    toast.success("Added to cart!");
+  };
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
@@ -39,7 +62,10 @@ const ProductGrid = ({ products }) => {
 
             <p className="text-sm text-gray-500 mt-1">${product.price}</p>
 
-            <button className="mt-4 w-full border border-black text-black py-2 text-xs tracking-wider uppercase transition-all duration-300 hover:bg-black hover:text-white">
+            <button
+              onClick={(e) => handleAddToCart(e, product)}
+              className="mt-4 w-full border border-black text-black py-2 text-xs tracking-wider uppercase transition-all duration-300 hover:bg-black hover:text-white"
+            >
               Add to Cart
             </button>
           </div>

@@ -1,17 +1,35 @@
 import { useState, useRef, useEffect } from "react";
 import { FaChevronDown } from "react-icons/fa";
+import { useSearchParams } from "react-router-dom";
 
-const SortOptions = ({ onSortChange }) => {
+const SortOptions = () => {
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState("Popular");
+
   const dropdownRef = useRef(null);
+  const [searchParams, setSearchParams] = useSearchParams();
 
   /* -------- Sort Options -------- */
   const sortItems = [
     { label: "Popular", value: "popular" },
-    { label: "Price: Low to High", value: "priceLow" },
-    { label: "Price: High to Low", value: "priceHigh" },
+    { label: "Price: Low to High", value: "priceLowHigh" },
+    { label: "Price: High to Low", value: "priceHighLow" },
   ];
+
+  /* -------- Sync selected option with URL -------- */
+  useEffect(() => {
+    const currentSort = searchParams.get("sort");
+
+    const matched = sortItems.find(
+      (item) => item.value === currentSort
+    );
+
+    if (matched) {
+      setSelected(matched.label);
+    } else {
+      setSelected("Popular");
+    }
+  }, [searchParams]);
 
   /* -------- Toggle dropdown -------- */
   const toggleDropdown = () => setOpen((prev) => !prev);
@@ -34,9 +52,15 @@ const SortOptions = ({ onSortChange }) => {
     setSelected(item.label);
     setOpen(false);
 
-    if (onSortChange) {
-      onSortChange(item.value);
+    const params = new URLSearchParams(searchParams);
+
+    if (item.value === "popular") {
+      params.delete("sort"); // default sorting
+    } else {
+      params.set("sort", item.value);
     }
+
+    setSearchParams(params);
   };
 
   return (

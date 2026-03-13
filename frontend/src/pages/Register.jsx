@@ -1,21 +1,50 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
 import { Card, CardContent } from "../components/ui/card";
 import { Label } from "../components/ui/label";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import toast from "react-hot-toast";
 import loginpage from "../assets/loginpage.jpg";
+
 import { registerUser } from "../redux/slices/authSlice";
-import { useDispatch } from "react-redux";
+import { mergeCart } from "../redux/slices/cartSlice";
+
+import { useDispatch, useSelector } from "react-redux";
 
 const Register = () => {
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const location = useLocation();
+
+  const { user, guestId } = useSelector((state) => state.auth);
+  const { cart } = useSelector((state) => state.cart);
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  const redirect =
+    new URLSearchParams(location.search).get("redirect") || "/";
+
+  const isCheckoutRedirect = redirect.includes("checkout");
+
+  /* ---------------- Redirect after register ---------------- */
+
+  useEffect(() => {
+    if (user) {
+      if (cart?.products?.length > 0 && guestId) {
+        dispatch(mergeCart({ guestId, user })).then(() => {
+          navigate(isCheckoutRedirect ? "/checkout" : "/");
+        });
+      } else {
+        navigate(isCheckoutRedirect ? "/checkout" : "/");
+      }
+    }
+  }, [user, guestId, cart, navigate, isCheckoutRedirect, dispatch]);
+
+  /* ---------------- Register Submit ---------------- */
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -26,11 +55,12 @@ const Register = () => {
     }
 
     try {
-      const resultAction = await dispatch(registerUser({ name, email, password }));
+      const resultAction = await dispatch(
+        registerUser({ name, email, password })
+      );
 
       if (registerUser.fulfilled.match(resultAction)) {
         toast.success(`Welcome, ${name}! ✨`);
-        navigate("/");
       } else {
         toast.error(resultAction.payload || "Registration failed");
       }
@@ -49,11 +79,14 @@ const Register = () => {
           alt="Register Visual"
           className="w-full h-[600px] object-cover scale-105 hover:scale-110 transition-transform duration-1000 ease-in-out mx-auto mt-12 rounded-2xl shadow-xl"
         />
+
         <div className="absolute inset-0 bg-black/30 backdrop-blur-sm rounded-2xl" />
+
         <div className="absolute bottom-24 left-12 text-white max-w-sm animate-fadeIn">
           <h2 className="text-4xl font-bold leading-tight mb-3 drop-shadow-xl tracking-tight">
             Elevate Your Style
           </h2>
+
           <p className="text-sm text-gray-200 drop-shadow-md">
             Join our fashion community and discover curated collections.
           </p>
@@ -62,17 +95,18 @@ const Register = () => {
 
       {/* Right Form Section */}
       <div className="flex flex-1 items-center justify-center px-6 py-12 relative z-10">
-        <Card
-          className="w-full max-w-md p-10 rounded-3xl
+
+        <Card className="w-full max-w-md p-10 rounded-3xl
                      bg-white/70 backdrop-blur-2xl
                      shadow-2xl border border-white/30
-                     transition-all duration-700 hover:scale-[1.03] hover:shadow-3xl"
-        >
+                     transition-all duration-700 hover:scale-[1.03] hover:shadow-3xl">
+
           {/* Header */}
           <div className="text-center mb-8 animate-fadeIn">
             <h1 className="text-3xl font-bold tracking-tight text-gray-900">
               Create Account
             </h1>
+
             <p className="text-gray-500 text-sm mt-2">
               Sign up to start your fashion journey
             </p>
@@ -86,6 +120,7 @@ const Register = () => {
                 <Label className="text-sm font-semibold text-gray-700">
                   Full Name
                 </Label>
+
                 <Input
                   type="text"
                   placeholder="Your Name"
@@ -103,6 +138,7 @@ const Register = () => {
                 <Label className="text-sm font-semibold text-gray-700">
                   Email Address
                 </Label>
+
                 <Input
                   type="email"
                   placeholder="you@example.com"
@@ -120,6 +156,7 @@ const Register = () => {
                 <Label className="text-sm font-semibold text-gray-700">
                   Password
                 </Label>
+
                 <Input
                   type="password"
                   placeholder="Enter your password"
@@ -148,7 +185,7 @@ const Register = () => {
               <p className="text-center text-sm text-gray-600 mt-3 animate-fadeUp delay-400">
                 Already have an account?{" "}
                 <Link
-                  to="/Login"
+                  to="/login"
                   className="font-medium text-black hover:underline"
                 >
                   Sign In
@@ -157,24 +194,29 @@ const Register = () => {
 
             </form>
           </CardContent>
+
         </Card>
       </div>
 
-      {/* Tailwind Animations */}
+      {/* Animations */}
       <style>
         {`
           @keyframes fadeIn {
             0% { opacity: 0; transform: translateY(20px); }
             100% { opacity: 1; transform: translateY(0); }
           }
+
           .animate-fadeIn { animation: fadeIn 1s ease forwards; }
+
           .animate-fadeUp { animation: fadeIn 0.8s ease forwards; }
+
           .animate-fadeUp.delay-100 { animation-delay: 0.1s; }
           .animate-fadeUp.delay-200 { animation-delay: 0.2s; }
           .animate-fadeUp.delay-300 { animation-delay: 0.3s; }
           .animate-fadeUp.delay-400 { animation-delay: 0.4s; }
         `}
       </style>
+
     </div>
   );
 };

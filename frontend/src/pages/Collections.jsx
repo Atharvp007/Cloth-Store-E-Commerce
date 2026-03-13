@@ -1,19 +1,49 @@
 import { useEffect, useState, useRef } from "react";
 import { FaFilter, FaTimes } from "react-icons/fa";
+import { useParams, useSearchParams } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchProductsByFilters } from "../redux/slices/productsSlice";
+
 import FilterSidebar from "../components/products/Filtersidebar.jsx";
 import SortOptions from "../components/products/SortOptions.jsx";
 import ProductGrid from "../components/products/ProductGrid.jsx";
 
 const CollectionPage = () => {
-  const [products, setProducts] = useState([]);
+  const { collection } = useParams();
+  const [searchParams] = useSearchParams();
+  const dispatch = useDispatch();
+
+  const { products, loading, error } = useSelector(
+    (state) => state.products
+  );
+
+  const queryParams = Object.fromEntries([...searchParams]);
+  const searchQuery = queryParams.search || "";
+  const sortOption = queryParams.sort || "popular";
+
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [pageLoaded, setPageLoaded] = useState(false);
+  const [contentVisible, setContentVisible] = useState(true);
+
   const sidebarRef = useRef(null);
 
   /* ---------------- Page Entrance Animation ---------------- */
   useEffect(() => {
-    setTimeout(() => setPageLoaded(true), 150);
+    const timer = setTimeout(() => setPageLoaded(true), 150);
+    return () => clearTimeout(timer);
   }, []);
+
+  /* ---------------- Animate + Fetch Products ---------------- */
+  useEffect(() => {
+    setContentVisible(false);
+
+    const timer = setTimeout(() => {
+      dispatch(fetchProductsByFilters({ collection, ...queryParams }));
+      setContentVisible(true);
+    }, 250);
+
+    return () => clearTimeout(timer);
+  }, [dispatch, collection, searchParams]);
 
   /* ---------------- Toggle Sidebar ---------------- */
   const toggleSidebar = () => {
@@ -41,26 +71,37 @@ const CollectionPage = () => {
     };
   }, [isSidebarOpen]);
 
-  /* ---------------- Dummy Products ---------------- */
-  useEffect(() => {
-    const defaultProducts = [
-      { _id: "1", name: "Stylish Jacket", price: 120, images: [{ url: "https://picsum.photos/500/500?random=1" }] },
-      { _id: "2", name: "Stylish Jacket", price: 90, images: [{ url: "https://picsum.photos/500/500?random=2" }] },
-      { _id: "3", name: "Stylish Jacket", price: 180, images: [{ url: "https://picsum.photos/500/500?random=3" }] },
-      { _id: "4", name: "Stylish Jacket", price: 140, images: [{ url: "https://picsum.photos/500/500?random=4" }] },
-      { _id: "5", name: "Stylish Jacket", price: 220, images: [{ url: "https://picsum.photos/500/500?random=5" }] },
-      { _id: "6", name: "Stylish Jacket", price: 110, images: [{ url: "https://picsum.photos/500/500?random=6" }] },
-    ];
+  /* ---------------- SEARCH FILTER ---------------- */
+  let filteredProducts = searchQuery
+    ? products.filter((product) =>
+        product.name?.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : [...products];
 
-    setTimeout(() => setProducts(defaultProducts), 400);
-  }, []);
+  /* ---------------- SORTING ---------------- */
+
+  // Popular = newest products
+  if (sortOption === "popular") {
+    filteredProducts.sort(
+      (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+    );
+  }
+
+  // Price Low → High
+  if (sortOption === "priceLowHigh") {
+    filteredProducts.sort((a, b) => a.price - b.price);
+  }
+
+  // Price High → Low
+  if (sortOption === "priceHighLow") {
+    filteredProducts.sort((a, b) => b.price - a.price);
+  }
 
   return (
     <div
       className={`flex min-h-screen bg-gray-50 relative transition-all duration-700
       ${pageLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
     >
-
       {/* ================= MOBILE FILTER BUTTON ================= */}
       <button
         onClick={toggleSidebar}
@@ -95,7 +136,6 @@ const CollectionPage = () => {
         lg:static lg:translate-x-0 lg:shadow-none
         `}
       >
-        {/* Mobile Header */}
         <div className="flex items-center justify-between p-4 border-b lg:hidden">
           <h3 className="font-semibold text-lg">Filters</h3>
           <FaTimes
@@ -108,29 +148,64 @@ const CollectionPage = () => {
       </div>
 
       {/* ================= MAIN CONTENT ================= */}
-      <div className="flex-grow p-6 lg:ml-6">
-
-        {/* ===== PREMIUM PAGE HEADER ===== */}
+      <div
+        className={`flex-grow p-6 lg:ml-6 transition-all duration-500 ease-in-out
+        ${
+          contentVisible
+            ? "opacity-100 translate-y-0"
+            : "opacity-0 translate-y-4"
+        }`}
+      >
+        {/* ===== PAGE HEADER ===== */}
         <div className="border-b pb-8 mb-8">
           <h2 className="text-4xl md:text-5xl font-semibold tracking-tight text-gray-900">
             All Collections
           </h2>
 
           <p className="text-gray-500 mt-3 text-base max-w-xl">
-            Discover curated pieces designed with precision, comfort, and modern aesthetics.
+            Discover curated pieces designed with precision, comfort, and
+            modern aesthetics.
           </p>
 
           <div className="mt-6 h-[2px] w-20 bg-black rounded-full"></div>
         </div>
 
-        {/* ===== SORT OPTIONS (CLEAN VERSION) ===== */}
+        {/* ===== SORT OPTIONS ===== */}
         <div className="mb-8 flex justify-end">
           <SortOptions />
         </div>
 
-        {/* ===== PRODUCT GRID ===== */}
-        <ProductGrid products={products} />
+        {/* ===== SEARCH RESULT TEXT ===== */}
+        {searchQuery && (
+          <div className="mb-6 text-gray-600 text-sm">
+            Showing results for{" "}
+            <span className="font-semibold text-black">
+              "{searchQuery}"
+            </span>
+          </div>
+        )}
 
+        {/* ===== PRODUCTS / NO RESULTS ===== */}
+        {filteredProducts.length === 0 && !loading ? (
+          <div className="flex flex-col items-center justify-center py-20 text-center">
+            <div className="text-6xl mb-4">🔍</div>
+
+            <h3 className="text-xl font-semibold text-gray-800">
+              No products found
+            </h3>
+
+            <p className="text-gray-500 mt-2 max-w-md">
+              We couldn't find any products matching your search. Try using
+              different keywords.
+            </p>
+          </div>
+        ) : (
+          <ProductGrid
+            products={filteredProducts}
+            loading={loading}
+            error={error}
+          />
+        )}
       </div>
     </div>
   );

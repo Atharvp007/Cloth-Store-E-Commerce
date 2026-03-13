@@ -1,35 +1,52 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
+import { useParams } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  fetchProductDetails,
+  fetchSimilarProducts,
+} from "../../redux/slices/productsSlice";
+import { addToCart } from "../../redux/slices/cartSlice";
 
-const selectedProduct = {
-  name: "Stylish Jacket",
-  price: 120,
-  originalPrice: 150,
-  description: "This is a stylish Jacket perfect for any occasion",
-  brand: "FashionBrand",
-  material: "Leather",
-  sizes: ["S", "M", "L", "XL"],
-  colors: ["Red", "Black"],
-  images: [
-    {
-      url: "https://picsum.photos/seed/jacket1/500/500",
-      altText: "Stylish Jacket 1",
-    },
-    {
-      url: "https://picsum.photos/seed/jacket2/500/500",
-      altText: "Stylish Jacket 2",
-    },
-  ],
-};
+function ProductDetails({ productId }) {
+  const { id } = useParams();
+  const dispatch = useDispatch();
 
-function ProductDetails() {
-  const [mainImage, setMainImage] = useState(
-    selectedProduct.images[0]?.url
+  const { selectedProduct, loading, error, similarProducts } = useSelector(
+    (state) => state.products
   );
+
+  const { user, guestId } = useSelector((state) => state.auth);
+
+  const productFetchId = productId || id;
+
+  const [mainImage, setMainImage] = useState(null);
   const [selectedSize, setSelectedSize] = useState("");
   const [selectedColor, setSelectedColor] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
+
+  useEffect(() => {
+    if (productFetchId) {
+      dispatch(fetchProductDetails(productFetchId));
+      dispatch(fetchSimilarProducts({ id: productFetchId }));
+    }
+  }, [dispatch, productFetchId]);
+
+  /* Default image, size, and color */
+  useEffect(() => {
+    if (selectedProduct?.images?.length > 0) {
+      setMainImage(selectedProduct.images[0].url);
+    }
+
+    if (selectedProduct?.sizes?.length > 0) {
+      setSelectedSize(selectedProduct.sizes[0]);
+    }
+
+    if (selectedProduct?.colors?.length > 0) {
+      setSelectedColor(selectedProduct.colors[0]);
+    }
+  }, [selectedProduct]);
 
   const handleQuantityChange = (action) => {
     if (action === "plus") setQuantity((prev) => prev + 1);
@@ -45,11 +62,33 @@ function ProductDetails() {
 
     setIsButtonDisabled(true);
 
-    setTimeout(() => {
-      toast.success("Product added to cart!");
-      setIsButtonDisabled(false);
-    }, 800);
+    dispatch(
+      addToCart({
+        productId: productFetchId,
+        quantity,
+        size: selectedSize,
+        color: selectedColor,
+        guestId,
+        userId: user?._id,
+      })
+    )
+      .then(() => {
+        toast.success("Product added to cart!", {
+          duration: 1000,
+        });
+      })
+      .finally(() => {
+        setIsButtonDisabled(false);
+      });
   };
+
+  if (loading || !selectedProduct) {
+    return <p>Loading...</p>;
+  }
+
+  if (error) {
+    return <p>Error: {error}</p>;
+  }
 
   return (
     <div className="py-4 md:py-6 px-3 bg-gray-50">
@@ -58,7 +97,7 @@ function ProductDetails() {
 
           {/* THUMBNAILS */}
           <div className="hidden md:flex flex-col space-y-4 mr-6">
-            {selectedProduct.images.map((image, index) => (
+            {selectedProduct?.images?.map((image, index) => (
               <img
                 key={index}
                 src={image.url}
@@ -115,7 +154,7 @@ function ProductDetails() {
             <div className="mb-6">
               <p className="font-medium mb-2">Color</p>
               <div className="flex gap-3">
-                {selectedProduct.colors.map((color) => (
+                {selectedProduct?.colors?.map((color) => (
                   <button
                     key={color}
                     onClick={() => setSelectedColor(color)}
@@ -135,7 +174,7 @@ function ProductDetails() {
             <div className="mb-6">
               <p className="font-medium mb-2">Size</p>
               <div className="flex gap-3 flex-wrap">
-                {selectedProduct.sizes.map((size) => (
+                {selectedProduct?.sizes?.map((size) => (
                   <button
                     key={size}
                     onClick={() => setSelectedSize(size)}
@@ -152,24 +191,14 @@ function ProductDetails() {
               </div>
             </div>
 
-            {/* ⭐ PREMIUM QUANTITY SELECTOR */}
+            {/* QUANTITY */}
             <div className="mb-8">
               <p className="font-medium mb-3">Quantity</p>
 
               <div className="flex items-center gap-4">
-
                 <button
                   onClick={() => handleQuantityChange("minus")}
-                  className="
-                    w-11 h-11
-                    flex items-center justify-center
-                    rounded-full
-                    border border-gray-300
-                    text-xl font-semibold
-                    transition-all duration-300
-                    hover:bg-black hover:text-white hover:shadow-md
-                    active:scale-90
-                  "
+                  className="w-11 h-11 flex items-center justify-center rounded-full border border-gray-300 text-xl font-semibold transition-all duration-300 hover:bg-black hover:text-white hover:shadow-md active:scale-90"
                 >
                   −
                 </button>
@@ -180,20 +209,10 @@ function ProductDetails() {
 
                 <button
                   onClick={() => handleQuantityChange("plus")}
-                  className="
-                    w-11 h-11
-                    flex items-center justify-center
-                    rounded-full
-                    border border-gray-300
-                    text-xl font-semibold
-                    transition-all duration-300
-                    hover:bg-black hover:text-white hover:shadow-md
-                    active:scale-90
-                  "
+                  className="w-11 h-11 flex items-center justify-center rounded-full border border-gray-300 text-xl font-semibold transition-all duration-300 hover:bg-black hover:text-white hover:shadow-md active:scale-90"
                 >
                   +
                 </button>
-
               </div>
             </div>
 
