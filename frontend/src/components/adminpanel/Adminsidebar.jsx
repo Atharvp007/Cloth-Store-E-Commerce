@@ -1,4 +1,4 @@
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import {
   FaUser,
   FaBox,
@@ -8,11 +8,19 @@ import {
   FaAngleLeft,
 } from "react-icons/fa";
 
+import { useDispatch } from "react-redux";
+import { logout } from "../../redux/slices/authSlice";
+import { clearCart } from "../../redux/slices/cartSlice";
+
 const Adminsidebar = ({ collapsed, setCollapsed }) => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const handleLogout = () => {
+    dispatch(logout());
+    dispatch(clearCart());
     localStorage.removeItem("token");
-    window.location.href = "/login";
+    navigate("/login");
   };
 
   const menu = [
@@ -22,7 +30,6 @@ const Adminsidebar = ({ collapsed, setCollapsed }) => {
     { to: "/admin/shop", icon: <FaStore />, label: "Shop" },
   ];
 
-  /* ===== NAV STYLE ===== */
   const navStyle = ({ isActive }) =>
     `
     group relative flex items-center
@@ -48,7 +55,7 @@ const Adminsidebar = ({ collapsed, setCollapsed }) => {
       backdrop-blur-xl
     "
     >
-      {/* ===== LOGO + COLLAPSE BUTTON ===== */}
+      {/* LOGO + COLLAPSE */}
       <div className="flex items-center justify-between mb-10">
 
         {!collapsed && (
@@ -76,24 +83,21 @@ const Adminsidebar = ({ collapsed, setCollapsed }) => {
         </button>
       </div>
 
-      {/* ===== MENU ===== */}
+      {/* MENU */}
       <nav className="flex flex-col gap-2 flex-grow">
         {menu.map((item, i) => (
           <NavLink key={i} to={item.to} className={navStyle}>
 
-            {/* ICON */}
             <span className="text-lg group-hover:scale-110 transition">
               {item.icon}
             </span>
 
-            {/* LABEL */}
             {!collapsed && (
               <span className="font-medium tracking-wide">
                 {item.label}
               </span>
             )}
 
-            {/* TOOLTIP WHEN COLLAPSED */}
             {collapsed && (
               <span
                 className="
@@ -108,11 +112,12 @@ const Adminsidebar = ({ collapsed, setCollapsed }) => {
                 {item.label}
               </span>
             )}
+
           </NavLink>
         ))}
       </nav>
 
-      {/* ===== LOGOUT BUTTON ===== */}
+      {/* LOGOUT */}
       <button
         onClick={handleLogout}
         className="

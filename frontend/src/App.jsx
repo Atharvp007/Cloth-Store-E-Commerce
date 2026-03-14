@@ -1,7 +1,10 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Provider } from "react-redux";
+import store from "./redux/store.js";
+import { Toaster } from "react-hot-toast";
+
 import User from "./components/Layout/User.jsx";
 import Home from "./pages/Home.jsx";
-import { Toaster } from "react-hot-toast";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import Profile from "./pages/Profile.jsx";
@@ -17,43 +20,57 @@ import AdminHome from "./components/adminpanel/AdminHome.jsx";
 import Usermanagement from "./components/adminpanel/Usermanagement.jsx";
 import Productmanagement from "./components/adminpanel/Productmanagement.jsx";
 import Editproduct from "./components/adminpanel/Editproduct.jsx";
+import CreateProduct from "./components/adminpanel/CreateProduct.jsx";
 import Ordermanagement from "./components/adminpanel/Ordermanagement.jsx";
-import { Provider } from "react-redux";
-import store from "./redux/store.js";
+
+import ProtectedRoute from "./components/common/protectedroute.jsx";
 
 const App = () => {
   return (
     <Provider store={store}>
-    <BrowserRouter>
-      <Toaster />
+      <BrowserRouter>
+        <Toaster />
 
-      <Routes>
-        {/* USER LAYOUT */}
-        <Route path="/" element={<User />}>
-          <Route index element={<Home />} />
-          <Route path="login" element={<Login />} />
-          <Route path="register" element={<Register />} />
-          <Route path="profile" element={<Profile />} />
-          <Route path="checkout" element={<Checkout />} />
-          <Route path="product/:id" element={<ProductDetails />} />
-          <Route path="myorders" element={<MyOrders />} />
-          <Route path="collections/:collections" element={<Collections />} />
-          <Route path="orderconfirm" element={<OrderConfirm />} />
-          <Route path="order/:id" element={<Orderdetails />} />
-        </Route>
+        <Routes>
+          {/* USER LAYOUT */}
+          <Route path="/" element={<User />}>
+            <Route index element={<Home />} />
+            <Route path="login" element={<Login />} />
+            <Route path="register" element={<Register />} />
+            <Route path="profile" element={<Profile />} />
+            <Route path="checkout" element={<Checkout />} />
+            <Route path="product/:id" element={<ProductDetails />} />
+            <Route path="myorders" element={<MyOrders />} />
+            <Route path="collections/:collections" element={<Collections />} />
+            <Route path="orderconfirm" element={<OrderConfirm />} />
+            <Route path="order/:id" element={<Orderdetails />} />
+          </Route>
 
-        {/* ✅ ADMIN LAYOUT (FIXED) */}
-        <Route path="admin" element={<Admin />}>
-          <Route index element={<AdminHome />} />
-           <Route path="users" element={<Usermanagement />} />
-           <Route path="products" element={<Productmanagement />} />
-           <Route path="products/:id/edit" element={<Editproduct />} />
+          {/* ADMIN LAYOUT */}
+          <Route
+            path="admin"
+            element={
+              <ProtectedRoute role="admin">
+                <Admin />
+              </ProtectedRoute>
+            }
+          >
+            <Route index element={<AdminHome />} />
+
+            <Route path="users" element={<Usermanagement />} />
+
+            <Route path="products" element={<Productmanagement />} />
+
+            {/* CREATE PRODUCT */}
+            <Route path="products/create" element={<CreateProduct />} />
+
+            {/* EDIT PRODUCT */}
+            <Route path="products/:id/edit" element={<Editproduct />} />
+
             <Route path="orders" element={<Ordermanagement />} />
-
-        </Route>
-
-      </Routes>
-    </BrowserRouter>
+          </Route>
+        </Routes>
+      </BrowserRouter>
     </Provider>
   );
 };

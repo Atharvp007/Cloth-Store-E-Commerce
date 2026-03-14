@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
@@ -24,6 +25,7 @@ function Navbar() {
   const [navDrawerOpen, setNavDrawerOpen] = useState(false);
 
   const { cart } = useSelector((state) => state.cart);
+ const user = useSelector((state) => state.auth.user);
   const { products } = useSelector((state) => state.products);
 
   const cartItemCount =
@@ -32,11 +34,8 @@ function Navbar() {
       0
     ) || 0;
 
-  /* ---------- SEARCH ---------- */
-
   const handleSearch = (e) => {
     e.preventDefault();
-
     const query = searchTerm.trim();
     if (!query) return;
 
@@ -55,8 +54,6 @@ function Navbar() {
     products?.filter((product) =>
       product.name.toLowerCase().includes(searchTerm.toLowerCase())
     ) || [];
-
-  /* ---------- CLOSE SUGGESTIONS OUTSIDE CLICK ---------- */
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -78,14 +75,11 @@ function Navbar() {
 
   return (
     <>
-      {/* ================= NAVBAR ================= */}
       <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b">
         <div className="container mx-auto flex items-center justify-between py-4 px-6">
 
-          {/* ===== Logo ===== */}
           <Link to="/" className="flex items-center gap-3 group">
             <img src={logo} alt="logo" className="w-7 h-7 md:w-10 md:h-10" />
-
             <span
               className="
               text-2xl md:text-3xl font-extrabold tracking-wide
@@ -99,7 +93,6 @@ function Navbar() {
             </span>
           </Link>
 
-          {/* ===== Search ===== */}
           <form
             onSubmit={handleSearch}
             className="relative hidden md:block"
@@ -125,7 +118,6 @@ function Navbar() {
               <FaSearch />
             </Button>
 
-            {/* ===== Suggestions ===== */}
             {showSuggestions && searchTerm && (
               <div className="absolute top-full mt-2 w-full bg-white border rounded-lg shadow-lg z-50">
 
@@ -151,7 +143,6 @@ function Navbar() {
             )}
           </form>
 
-          {/* ===== Desktop Navigation ===== */}
           <div className="hidden md:flex space-x-8">
 
             <Link
@@ -188,26 +179,27 @@ function Navbar() {
 
           </div>
 
-          {/* ===== Right Icons ===== */}
           <div className="flex items-center space-x-5">
 
-            <Link
-              to="/admin"
-              className="
-              hidden md:flex items-center
-              px-4 py-1.5
-              rounded-full
-              text-xs font-semibold uppercase tracking-wide
-              bg-gradient-to-r from-black to-gray-800
-              text-white
-              shadow-md
-              hover:shadow-xl hover:scale-105
-              active:scale-95
-              transition-all duration-300
-              "
-            >
-              Admin Panel
-            </Link>
+            {user && user.role === "admin" && (
+              <Link
+                to="/admin"
+                className="
+                hidden md:flex items-center
+                px-4 py-1.5
+                rounded-full
+                text-xs font-semibold uppercase tracking-wide
+                bg-gradient-to-r from-black to-gray-800
+                text-white
+                shadow-md
+                hover:shadow-xl hover:scale-105
+                active:scale-95
+                transition-all duration-300
+                "
+              >
+                Admin Panel
+              </Link>
+            )}
 
             <Link to="/profile" className="hover:scale-110 transition">
               <HiOutlineUser className="h-6 w-6 text-gray-700" />
@@ -239,7 +231,6 @@ function Navbar() {
         toggleCartDrawer={toggleCartDrawer}
       />
 
-      {/* ===== MOBILE MENU ===== */}
       <div
         className={`fixed top-0 left-0 w-3/4 sm:w-1/2 md:w-1/3 h-full
         bg-white shadow-2xl transform transition-transform duration-300 z-50
@@ -250,9 +241,34 @@ function Navbar() {
             <IoMdClose className="h-6 w-6 text-gray-600" />
           </button>
         </div>
+
+        <div className="flex flex-col px-6 space-y-6 mt-4 text-gray-700 font-medium">
+
+          <Link to="/collections/all?gender=Men" onClick={toggleNavDrawer}>
+            Men
+          </Link>
+
+          <Link to="/collections/all?gender=Women" onClick={toggleNavDrawer}>
+            Women
+          </Link>
+
+          <Link to="/collections/all?category=Top Wear" onClick={toggleNavDrawer}>
+            Top Wear
+          </Link>
+
+          <Link to="/collections/all?category=Bottom Wear" onClick={toggleNavDrawer}>
+            Bottom Wear
+          </Link>
+
+          <Link to="/profile" onClick={toggleNavDrawer}>
+            Profile
+          </Link>
+
+        </div>
       </div>
     </>
   );
 }
 
 export default Navbar;
+

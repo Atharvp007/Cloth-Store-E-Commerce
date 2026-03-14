@@ -15,7 +15,7 @@ const Login = () => {
   const dispatch = useDispatch();
   const location = useLocation();
 
-  const { user, guestId } = useSelector((state) => state.auth);
+  const { user, guestId, loading } = useSelector((state) => state.auth);
   const { cart } = useSelector((state) => state.cart);
 
   const [email, setEmail] = useState("");
@@ -44,6 +44,8 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (loading) return;
 
     if (!email || !password) {
       toast.error("Please fill in all fields");
@@ -144,9 +146,38 @@ const Login = () => {
               {/* Sign In Button */}
               <Button
                 type="submit"
-                className="w-full h-12 rounded-xl bg-gradient-to-r from-black to-gray-800 text-white font-semibold hover:scale-[1.03] transition-all duration-300 shadow-lg"
+                disabled={loading}
+                className="w-full h-12 rounded-xl bg-gradient-to-r from-black to-gray-800 text-white font-semibold shadow-lg flex items-center justify-center gap-2 disabled:opacity-70"
               >
-                Sign In
+                {loading ? (
+                  <>
+                    <svg
+                      className="animate-spin h-5 w-5"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8v8z"
+                      ></path>
+                    </svg>
+
+                    Signing In...
+                  </>
+                ) : (
+                  "Sign In"
+                )}
               </Button>
 
               {/* Register */}

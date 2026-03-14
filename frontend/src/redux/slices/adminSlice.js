@@ -18,8 +18,7 @@ export const fetchUsers = createAsyncThunk(
       return response.data; // expecting array of users
     } catch (error) {
       return rejectWithValue({
-        message:
-          error.response?.data?.message || "Failed to fetch users",
+        message: error.response?.data?.message || "Failed to fetch users",
       });
     }
   }
@@ -30,17 +29,11 @@ export const addUser = createAsyncThunk(
   "admin/addUser",
   async (userData, { rejectWithValue }) => {
     try {
-      const response = await axios.post(
-        API_URL,
-        userData,
-        authHeader()
-      );
-
-      return response.data; // returning created user directly
+      const response = await axios.post(API_URL, userData, authHeader());
+      return response.data.user; // return the created user directly
     } catch (error) {
       return rejectWithValue({
-        message:
-          error.response?.data?.message || "Failed to add user",
+        message: error.response?.data?.message || "Failed to add user",
       });
     }
   }
@@ -56,12 +49,10 @@ export const updateUser = createAsyncThunk(
         { name, email, role },
         authHeader()
       );
-
-      return response.data; // returning updated user directly
+      return response.data.user; // extract user from backend response
     } catch (error) {
       return rejectWithValue({
-        message:
-          error.response?.data?.message || "Failed to update user",
+        message: error.response?.data?.message || "Failed to update user",
       });
     }
   }
@@ -73,11 +64,10 @@ export const deleteUser = createAsyncThunk(
   async (id, { rejectWithValue }) => {
     try {
       await axios.delete(`${API_URL}/${id}`, authHeader());
-      return id; // return deleted id
+      return id; // return deleted user's id
     } catch (error) {
       return rejectWithValue({
-        message:
-          error.response?.data?.message || "Failed to delete user",
+        message: error.response?.data?.message || "Failed to delete user",
       });
     }
   }
@@ -94,7 +84,6 @@ const adminSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-
       // ===== FETCH USERS =====
       .addCase(fetchUsers.pending, (state) => {
         state.loading = true;
@@ -106,8 +95,7 @@ const adminSlice = createSlice({
       })
       .addCase(fetchUsers.rejected, (state, action) => {
         state.loading = false;
-        state.error =
-          action.payload?.message || action.error.message;
+        state.error = action.payload?.message || action.error.message;
       })
 
       // ===== ADD USER =====
@@ -121,8 +109,7 @@ const adminSlice = createSlice({
       })
       .addCase(addUser.rejected, (state, action) => {
         state.loading = false;
-        state.error =
-          action.payload?.message || action.error.message;
+        state.error = action.payload?.message || action.error.message;
       })
 
       // ===== UPDATE USER =====
@@ -132,7 +119,6 @@ const adminSlice = createSlice({
       })
       .addCase(updateUser.fulfilled, (state, action) => {
         state.loading = false;
-
         const updatedUser = action.payload;
 
         const userIndex = state.users.findIndex(
@@ -140,13 +126,13 @@ const adminSlice = createSlice({
         );
 
         if (userIndex !== -1) {
-          state.users[userIndex] = updatedUser;
+          // merge updated fields to preserve other properties
+          state.users[userIndex] = { ...state.users[userIndex], ...updatedUser };
         }
       })
       .addCase(updateUser.rejected, (state, action) => {
         state.loading = false;
-        state.error =
-          action.payload?.message || action.error.message;
+        state.error = action.payload?.message || action.error.message;
       })
 
       // ===== DELETE USER =====
@@ -156,14 +142,11 @@ const adminSlice = createSlice({
       })
       .addCase(deleteUser.fulfilled, (state, action) => {
         state.loading = false;
-        state.users = state.users.filter(
-          (user) => user._id !== action.payload
-        );
+        state.users = state.users.filter((user) => user._id !== action.payload);
       })
       .addCase(deleteUser.rejected, (state, action) => {
         state.loading = false;
-        state.error =
-          action.payload?.message || action.error.message;
+        state.error = action.payload?.message || action.error.message;
       });
   },
 });

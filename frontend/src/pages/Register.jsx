@@ -18,7 +18,7 @@ const Register = () => {
   const dispatch = useDispatch();
   const location = useLocation();
 
-  const { user, guestId } = useSelector((state) => state.auth);
+  const { user, guestId, loading } = useSelector((state) => state.auth);
   const { cart } = useSelector((state) => state.cart);
 
   const [name, setName] = useState("");
@@ -48,6 +48,8 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (loading) return;
 
     if (!name || !email || !password) {
       toast.error("Please fill in all fields");
@@ -99,7 +101,7 @@ const Register = () => {
         <Card className="w-full max-w-md p-10 rounded-3xl
                      bg-white/70 backdrop-blur-2xl
                      shadow-2xl border border-white/30
-                     transition-all duration-700 hover:scale-[1.03] hover:shadow-3xl">
+                     transition-all duration-700 hover:scale-[1.03]">
 
           {/* Header */}
           <div className="text-center mb-8 animate-fadeIn">
@@ -126,10 +128,7 @@ const Register = () => {
                   placeholder="Your Name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="h-12 rounded-xl border-gray-300
-                             focus:border-black focus:ring-2
-                             focus:ring-black/20 transition-all duration-300
-                             hover:scale-[1.01] shadow-sm"
+                  className="h-12 rounded-xl border-gray-300 focus:border-black focus:ring-2 focus:ring-black/20 transition-all duration-300 shadow-sm"
                 />
               </div>
 
@@ -144,10 +143,7 @@ const Register = () => {
                   placeholder="you@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="h-12 rounded-xl border-gray-300
-                             focus:border-black focus:ring-2
-                             focus:ring-black/20 transition-all duration-300
-                             hover:scale-[1.01] shadow-sm"
+                  className="h-12 rounded-xl border-gray-300 focus:border-black focus:ring-2 focus:ring-black/20 transition-all duration-300 shadow-sm"
                 />
               </div>
 
@@ -162,23 +158,48 @@ const Register = () => {
                   placeholder="Enter your password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="h-12 rounded-xl border-gray-300
-                             focus:border-black focus:ring-2
-                             focus:ring-black/20 transition-all duration-300
-                             hover:scale-[1.01] shadow-sm"
+                  className="h-12 rounded-xl border-gray-300 focus:border-black focus:ring-2 focus:ring-black/20 transition-all duration-300 shadow-sm"
                 />
               </div>
 
               {/* Sign Up Button */}
               <Button
                 type="submit"
+                disabled={loading}
                 className="w-full h-12 rounded-xl
                            bg-gradient-to-r from-black to-gray-800
                            text-white font-semibold
-                           hover:scale-[1.03] hover:from-gray-900 hover:to-black
-                           transition-all duration-300 ease-in-out shadow-lg"
+                           shadow-lg flex items-center justify-center gap-2 disabled:opacity-70"
               >
-                Sign Up
+                {loading ? (
+                  <>
+                    <svg
+                      className="animate-spin h-5 w-5"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8v8z"
+                      ></path>
+                    </svg>
+
+                    Creating Account...
+                  </>
+                ) : (
+                  "Sign Up"
+                )}
               </Button>
 
               {/* Login Link */}
@@ -197,26 +218,6 @@ const Register = () => {
 
         </Card>
       </div>
-
-      {/* Animations */}
-      <style>
-        {`
-          @keyframes fadeIn {
-            0% { opacity: 0; transform: translateY(20px); }
-            100% { opacity: 1; transform: translateY(0); }
-          }
-
-          .animate-fadeIn { animation: fadeIn 1s ease forwards; }
-
-          .animate-fadeUp { animation: fadeIn 0.8s ease forwards; }
-
-          .animate-fadeUp.delay-100 { animation-delay: 0.1s; }
-          .animate-fadeUp.delay-200 { animation-delay: 0.2s; }
-          .animate-fadeUp.delay-300 { animation-delay: 0.3s; }
-          .animate-fadeUp.delay-400 { animation-delay: 0.4s; }
-        `}
-      </style>
-
     </div>
   );
 };

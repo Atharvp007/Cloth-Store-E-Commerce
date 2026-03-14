@@ -1,15 +1,13 @@
-import React, { useState, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useNavigate, useParams } from "react-router-dom";
+// src/pages/admin/CreateProduct.jsx
+import React, { useState } from "react";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { updateProduct, fetchAdminProducts } from "../../redux/slices/adminproductSlice"; // adjust path
+import { createProduct } from "../../redux/slices/adminproductSlice";
 
-const Editproduct = () => {
+const CreateProduct = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { id } = useParams();
-
-  const { products, loading, error } = useSelector((state) => state.adminProducts);
 
   const [productData, setProductData] = useState({
     name: "",
@@ -17,6 +15,9 @@ const Editproduct = () => {
     price: 0,
     countInStock: 0,
     sku: "",
+    category: "",
+    collections: "",
+    gender: "",
     sizes: [],
     colors: [],
     images: [],
@@ -24,21 +25,13 @@ const Editproduct = () => {
 
   const [uploading, setUploading] = useState(false);
 
-  // Load product data
-  useEffect(() => {
-    if (products.length > 0 && id) {
-      const selected = products.find((p) => p._id === id);
-      if (selected) setProductData(selected);
-    }
-  }, [products, id]);
-
-  // ---------- INPUT CHANGE ----------
+  // INPUT CHANGE
   const handleChange = (e) => {
     const { name, value } = e.target;
     setProductData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // ---------- IMAGE UPLOAD ----------
+  // IMAGE UPLOAD
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -48,37 +41,51 @@ const Editproduct = () => {
 
     try {
       setUploading(true);
+
       const { data } = await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/api/upload`,
         formData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );
 
-      setProductData((prevData) => ({
-        ...prevData,
-        images: [...prevData.images, { url: data.imageUrl, altText: "" }],
+      setProductData((prev) => ({
+        ...prev,
+        images: [...prev.images, { url: data.imageUrl, altText: "" }],
       }));
+
       setUploading(false);
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      console.error(error);
       setUploading(false);
     }
   };
 
-  // ---------- FORM SUBMIT ----------
+  // SUBMIT HANDLER
   const handleSubmit = (e) => {
     e.preventDefault();
-    dispatch(updateProduct({ id, productData }));
+
+    // ✅ Validate required fields individually
+    if (!productData.name.trim()) return alert("Please fill out Name");
+    if (!productData.description.trim()) return alert("Please fill out Description");
+    if (!productData.price) return alert("Please fill out Price");
+    if (!productData.countInStock && productData.countInStock !== 0) return alert("Please fill out Count In Stock");
+    if (!productData.sku.trim()) return alert("Please fill out SKU");
+    if (!productData.category.trim()) return alert("Please fill out Category");
+    if (!productData.collections.trim()) return alert("Please fill out Collections");
+    if (!productData.gender.trim()) return alert("Please select Gender");
+    if (!productData.sizes.length) return alert("Please add at least one Size");
+    if (!productData.colors.length) return alert("Please add at least one Color");
+    if (!productData.images.length) return alert("Please upload at least one Image");
+
+    // Dispatch to Redux
+    dispatch(createProduct(productData));
     navigate("/admin/products");
   };
-
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error: {error}</p>;
 
   return (
     <div className="min-h-screen bg-gray-100 py-10 px-4">
       <div className="max-w-5xl mx-auto bg-white rounded-2xl shadow-lg border p-10">
-        <h2 className="text-3xl font-semibold text-gray-800 mb-8">Edit Product</h2>
+        <h2 className="text-3xl font-semibold text-gray-800 mb-8">Create Product</h2>
 
         <form onSubmit={handleSubmit} className="space-y-7">
           {/* NAME */}
@@ -91,6 +98,49 @@ const Editproduct = () => {
               className="input"
               required
             />
+          </div>
+
+          {/* CATEGORY */}
+          <div>
+            <label className="label">Category</label>
+            <input
+              name="category"
+              value={productData.category}
+              onChange={handleChange}
+              className="input"
+              placeholder="e.g. T-Shirts, Hoodies"
+              required
+            />
+          </div>
+
+          {/* COLLECTIONS */}
+          <div>
+            <label className="label">Collections</label>
+            <input
+              name="collections"
+              value={productData.collections}
+              onChange={handleChange}
+              className="input"
+              placeholder="e.g. Summer 2026"
+              required
+            />
+          </div>
+
+          {/* GENDER */}
+          <div>
+            <label className="label">Gender</label>
+            <select
+              name="gender"
+              value={productData.gender}
+              onChange={handleChange}
+              className="input"
+              required
+            >
+              <option value="">Select Gender</option>
+              <option value="Men">Men</option>
+              <option value="Women">Women</option>
+              <option value="Unisex">Unisex</option>
+            </select>
           </div>
 
           {/* DESCRIPTION */}
@@ -148,7 +198,10 @@ const Editproduct = () => {
               onChange={(e) =>
                 setProductData({
                   ...productData,
-                  sizes: e.target.value.split(",").map((s) => s.trim()),
+                  sizes: e.target.value
+                    .split(",")
+                    .map((s) => s.trim())
+                    .filter(Boolean),
                 })
               }
               className="input"
@@ -163,7 +216,10 @@ const Editproduct = () => {
               onChange={(e) =>
                 setProductData({
                   ...productData,
-                  colors: e.target.value.split(",").map((c) => c.trim()),
+                  colors: e.target.value
+                    .split(",")
+                    .map((c) => c.trim())
+                    .filter(Boolean),
                 })
               }
               className="input"
@@ -174,8 +230,14 @@ const Editproduct = () => {
           <div>
             <label className="label">Upload Image</label>
             <label className="uploadBox">
-              <input type="file" onChange={handleImageUpload} className="hidden" />
-              <p className="text-gray-500">{uploading ? "Uploading..." : "Click to upload or drag image here"}</p>
+              <input
+                type="file"
+                onChange={handleImageUpload}
+                className="hidden"
+              />
+              <p className="text-gray-500">
+                {uploading ? "Uploading..." : "Click to upload or drag image here"}
+              </p>
             </label>
           </div>
 
@@ -191,12 +253,12 @@ const Editproduct = () => {
             ))}
           </div>
 
-          {/* BUTTON */}
+          {/* SUBMIT BUTTON */}
           <button
             type="submit"
             className="w-full bg-black text-white py-3 rounded-lg font-medium hover:bg-gray-800 transition"
           >
-            Update Product
+            Create Product
           </button>
         </form>
       </div>
@@ -241,4 +303,4 @@ const Editproduct = () => {
   );
 };
 
-export default Editproduct;
+export default CreateProduct;
