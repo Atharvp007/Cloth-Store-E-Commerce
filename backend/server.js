@@ -26,7 +26,7 @@ app.use(express.json());
 
 // ---------------- ROUTES ----------------
 app.get("/", (req, res) => {
-  res.send("WELCOME TO RABBIT API!");
+  res.send("WELCOME TO shopify!");
 });
 
 app.use("/api/users", userroutes);
