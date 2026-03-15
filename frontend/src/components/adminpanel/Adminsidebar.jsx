@@ -23,11 +23,14 @@ const Adminsidebar = ({ collapsed, setCollapsed }) => {
     navigate("/login");
   };
 
+  // MENU ITEMS
   const menu = [
     { to: "/admin/users", icon: <FaUser />, label: "Users" },
     { to: "/admin/products", icon: <FaBox />, label: "Products" },
     { to: "/admin/orders", icon: <FaShoppingCart />, label: "Orders" },
-    { to: "/admin/shop", icon: <FaStore />, label: "Shop" },
+
+    // SHOP → GO TO HOME PAGE
+    { to: "/", icon: <FaStore />, label: "Shop" },
   ];
 
   const navStyle = ({ isActive }) =>
@@ -57,7 +60,6 @@ const Adminsidebar = ({ collapsed, setCollapsed }) => {
     >
       {/* LOGO + COLLAPSE */}
       <div className="flex items-center justify-between mb-10">
-
         {!collapsed && (
           <Link
             to="/admin"
@@ -87,15 +89,12 @@ const Adminsidebar = ({ collapsed, setCollapsed }) => {
       <nav className="flex flex-col gap-2 flex-grow">
         {menu.map((item, i) => (
           <NavLink key={i} to={item.to} className={navStyle}>
-
             <span className="text-lg group-hover:scale-110 transition">
               {item.icon}
             </span>
 
             {!collapsed && (
-              <span className="font-medium tracking-wide">
-                {item.label}
-              </span>
+              <span className="font-medium tracking-wide">{item.label}</span>
             )}
 
             {collapsed && (
@@ -112,7 +111,6 @@ const Adminsidebar = ({ collapsed, setCollapsed }) => {
                 {item.label}
               </span>
             )}
-
           </NavLink>
         ))}
       </nav>

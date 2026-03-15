@@ -175,19 +175,36 @@ const Editproduct = () => {
             <label className="label">Upload Image</label>
             <label className="uploadBox">
               <input type="file" onChange={handleImageUpload} className="hidden" />
-              <p className="text-gray-500">{uploading ? "Uploading..." : "Click to upload or drag image here"}</p>
+              <p className="text-gray-500">
+                {uploading ? "Uploading..." : "Click to upload or drag image here"}
+              </p>
             </label>
           </div>
 
-          {/* IMAGE PREVIEW */}
+          {/* IMAGE PREVIEW WITH REMOVE */}
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
             {productData.images.map((img, i) => (
-              <img
-                key={i}
-                src={img.url}
-                alt={img.altText || "preview"}
-                className="h-28 w-full object-cover rounded-lg border hover:shadow-md transition"
-              />
+              <div key={i} className="relative group">
+                <img
+                  src={img.url}
+                  alt={img.altText || "preview"}
+                  className="h-28 w-full object-cover rounded-lg border hover:shadow-md transition"
+                />
+                {/* Remove Button */}
+                <button
+                  type="button"
+                  onClick={() =>
+                    setProductData({
+                      ...productData,
+                      images: productData.images.filter((_, index) => index !== i),
+                    })
+                  }
+                  className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition"
+                  title="Remove Image"
+                >
+                  &times;
+                </button>
+              </div>
             ))}
           </div>
 
