@@ -2,7 +2,10 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
-
 export default defineConfig({
-  plugins: [react(),tailwindcss()],
+  plugins: [react(), tailwindcss()],
+  build: {
+    outDir: 'dist' // Make sure this matches vercel.json distDir
+  },
+  base: './' // optional: helps with correct path resolution in deployed SPA
 })
