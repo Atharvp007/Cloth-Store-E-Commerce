@@ -16,7 +16,7 @@ const OrderConfirm = () => {
       dispatch(clearCart());
       localStorage.removeItem("cart");
     } else {
-      navigate("/MyOrders");
+      navigate("/myorders");
     }
   }, [checkout, dispatch, navigate]);
 
