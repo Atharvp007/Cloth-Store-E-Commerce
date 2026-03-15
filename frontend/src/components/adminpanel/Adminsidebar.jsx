@@ -69,7 +69,7 @@ const Adminsidebar = ({ collapsed, setCollapsed }) => {
             bg-clip-text text-transparent
           "
           >
-            Rabbit
+            Shopify
           </Link>
         )}
 
