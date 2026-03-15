@@ -3,7 +3,7 @@ import { Provider } from "react-redux";
 import store from "./redux/store.js";
 import { Toaster } from "react-hot-toast";
 
-import User from "./components/layout/User.jsx";
+import User from "./components/layout/user.jsx";
 import Home from "./pages/Home.jsx";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
